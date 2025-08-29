@@ -11,23 +11,24 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onDelete }) => {
-  const getPriorityColor = () => {
-    switch (task.priority) {
-      case 'high': return '#fff3cd'; // Naranja claro
-      case 'medium': return '#fff3cd'; // Amarillo claro
-      case 'low': return '#ffffff'; // Blanco
-      default: return '#ffffff';
-    }
-  };
+const getPriorityColor = () => {
+  switch (task.priority) {
+    case 'high': return '#FFF5F5'; // Fondo rojo muy claro
+    case 'medium': return '#FFFBEB'; // Fondo amarillo muy claro
+    case 'low': return '#F0FFF4'; // Fondo verde muy claro
+    default: return '#FFFFFF';
+  }
+};
 
-  const getPriorityBorderColor = () => {
-    switch (task.priority) {
-      case 'high': return '#dc3545'; // Rojo
-      case 'medium': return '#ffc107'; // Amarillo
-      case 'low': return '#28a745'; // Verde
-      default: return '#dee2e6';
-    }
-  };
+// Actualizar la función getPriorityBorderColor
+const getPriorityBorderColor = () => {
+  switch (task.priority) {
+    case 'high': return '#FC8181'; // Rojo
+    case 'medium': return '#F6AD55'; // Amarillo anaranjado
+    case 'low': return '#68D391'; // Verde
+    default: return '#E2E8F0';
+  }
+};
 
   const handleDelete = () => {
     Alert.alert(
@@ -118,12 +119,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    borderRadius: 16,
+    marginBottom: 12,
+    backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 3,
   },
   checkboxContainer: {
@@ -133,63 +135,67 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#E2E8F0',
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   checkboxChecked: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#06D6A0',
+    borderColor: '#06D6A0',
   },
   textContainer: {
     flex: 1,
   },
   title: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     marginBottom: 4,
-    color: '#212529',
+    color: '#2D3748',
   },
   noteText: {
     fontSize: 14,
-    color: '#6c757d',
+    color: '#718096',
     marginBottom: 8,
-    fontStyle: 'italic',
+    lineHeight: 20,
   },
   completedText: {
     textDecorationLine: 'line-through',
-    color: '#6c757d',
+    color: '#A0AEC0',
   },
   metaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flexWrap: 'wrap',
   },
   categoryBadge: {
-    backgroundColor: '#e9ecef',
-    paddingHorizontal: 8,
+    backgroundColor: '#EDF2F7',
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   categoryText: {
     fontSize: 12,
-    color: '#495057',
-    fontWeight: '500',
+    color: '#4A5568',
+    fontWeight: '600',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#A0AEC0',
+    fontWeight: '500',
   },
   priorityIndicator: {
     marginLeft: 8,
   },
   deleteContainer: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
-    borderRadius: 12,
-    marginBottom: 8,
+    borderRadius: 16,
+    marginBottom: 12,
   },
   deleteButton: {
     width: 80,

@@ -226,7 +226,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   categoryFilter: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   categoryFilterContainer: {
     flexDirection: 'row',
@@ -235,15 +235,21 @@ const styles = StyleSheet.create({
   },
   categoryFilterButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#EDF2F7',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   categoryFilterButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4361EE',
+    borderColor: '#4361EE',
   },
   categoryFilterButtonText: {
-    color: '#495057',
-    fontWeight: '500',
+    color: '#4A5568',
+    fontWeight: '600',
+  },
+  categoryFilterButtonTextActive: {
+    color: 'white',
   },
 });

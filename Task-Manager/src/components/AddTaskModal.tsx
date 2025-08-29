@@ -270,39 +270,42 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   noteInput: {
-    minHeight: 20,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   priorityContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+    gap: 8,
   },
   priorityButton: {
     flex: 1,
     padding: 12,
-    marginHorizontal: 4,
-    borderRadius: 8,
-    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+    backgroundColor: '#F8FAFC',
   },
   priorityButtonText: {
-    color: '#6c757d',
-    fontWeight: '500',
+    color: '#718096',
+    fontWeight: '600',
   },
   priorityButtonTextSelected: {
-    color: '#000',
+    color: '#2D3748',
     fontWeight: 'bold',
   },
   categoryToggle: {
-    padding: 8,
+    padding: 12,
     marginBottom: 12,
+    backgroundColor: '#EDF2F7',
+    borderRadius: 12,
+    alignItems: 'center',
   },
   categoryToggleText: {
-    color: '#007AFF',
-    textAlign: 'center',
-    fontWeight: '500',
+    color: '#4361EE',
+    fontWeight: '600',
   },
   categoriesScroll: {
     marginBottom: 20,
@@ -310,22 +313,23 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     flexDirection: 'row',
     gap: 8,
+    paddingVertical: 4,
   },
   categoryButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#EDF2F7',
     borderWidth: 2,
     borderColor: 'transparent',
   },
   categoryButtonSelected: {
-    backgroundColor: '#007AFF20',
-    borderColor: '#007AFF',
+    backgroundColor: '#4361EE20',
+    borderColor: '#4361EE',
   },
   categoryButtonText: {
-    color: '#495057',
-    fontWeight: '500',
+    color: '#4A5568',
+    fontWeight: '600',
   },
 });
 
