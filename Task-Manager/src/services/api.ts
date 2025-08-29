@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Task, TaskForm } from '../types/Task';
 
-const API_BASE_URL = 'https://jsonplaceholder.typicode.com';
+const API_BASE_URL = 'http://192.168.68.52:8000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -22,7 +22,7 @@ const getErrorMessage = (error: unknown): string => {
 export const taskAPI = {
   getTasks: async (): Promise<Task[]> => {
     try {
-      const response = await api.get('/todos?_limit=10');
+      const response = await api.get('/todos'); // Cambiado a /todos
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -31,10 +31,9 @@ export const taskAPI = {
 
   createTask: async (task: TaskForm): Promise<Task> => {
     try {
-      const response = await api.post('/todos', {
+      const response = await api.post('/todos', { // Cambiado a /todos
         title: task.title,
         completed: false,
-        userId: 1,
       });
       return response.data;
     } catch (error) {
@@ -44,7 +43,7 @@ export const taskAPI = {
 
   updateTask: async (id: number, updates: Partial<Task>): Promise<Task> => {
     try {
-      const response = await api.patch(`/todos/${id}`, updates);
+      const response = await api.patch(`/todos/${id}`, updates); // Cambiado a /todos
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -53,7 +52,7 @@ export const taskAPI = {
 
   deleteTask: async (id: number): Promise<void> => {
     try {
-      await api.delete(`/todos/${id}`);
+      await api.delete(`/todos/${id}`); // Cambiado a /todos
     } catch (error) {
       throw new Error(getErrorMessage(error));
     }

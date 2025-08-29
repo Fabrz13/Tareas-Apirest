@@ -49,7 +49,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
   return (
     <View style={globalStyles.container}>
-      <Text style={globalStyles.header}>Mis Tareas</Text>
+      <Text style={[globalStyles.header, { marginTop: 40 }]}>Mis Tareas</Text>
 
       <TouchableOpacity style={globalStyles.addButton} onPress={onAddPress}>
         <Text style={globalStyles.addButtonText}>Agregar Tarea</Text>
