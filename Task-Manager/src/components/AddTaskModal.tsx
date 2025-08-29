@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   noteInput: {
-    minHeight: 100,
+    minHeight: 50,
     textAlignVertical: 'top',
   },
   priorityContainer: {
