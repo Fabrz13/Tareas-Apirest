@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, View } from 'react-native';
+import { 
+  Alert, 
+  View, 
+  Text, 
+  ScrollView, 
+  TouchableOpacity, 
+  StyleSheet 
+} from 'react-native'; // Añadir importaciones faltantes
 import TaskList from '../../src/components/TaskList';
 import AddTaskModal from '../../src/components/AddTaskModal';
 import LoadingIndicator from '../../src/components/LoadingIndicator';
@@ -31,6 +38,13 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+
+  // Obtener categorías únicas de las tareas
+  const categories = React.useMemo(() => {
+    const cats = tasks.map(task => task.category).filter(Boolean) as string[];
+    return Array.from(new Set(cats));
+  }, [tasks]);
 
   // Cargar tareas solo una vez al inicio
   const loadTasks = useCallback(async (isRefreshing = false) => {
@@ -58,13 +72,14 @@ export default function App() {
   }, []); // <-- Eliminamos las dependencias que causaban el refresco
 
   // Filtrar tareas localmente sin recargar de la API
-  const filterTasks = useCallback((tasksList: Task[], query: string, filterType: string) => {
-    let filtered = [...tasksList]; // Copia de las tareas
+  const filterTasks = useCallback((tasksList: Task[], query: string, filterType: string, categoryFilter: string) => {
+    let filtered = [...tasksList];
     
     // Aplicar filtro de búsqueda
     if (query) {
       filtered = filtered.filter(task => 
-        task.title.toLowerCase().includes(query.toLowerCase())
+        task.title.toLowerCase().includes(query.toLowerCase()) ||
+        (task.note && task.note.toLowerCase().includes(query.toLowerCase()))
       );
     }
     
@@ -75,19 +90,24 @@ export default function App() {
       filtered = filtered.filter(task => task.completed);
     }
     
+    // Aplicar filtro de categoría
+    if (categoryFilter) {
+      filtered = filtered.filter(task => task.category === categoryFilter);
+    }
+    
     setFilteredTasks(filtered);
   }, []);
 
-  // Filtrar cuando cambian los filtros o la búsqueda
+  // Actualizar useEffect para incluir categoría
   useEffect(() => {
-    filterTasks(tasks, searchQuery, filter);
-  }, [tasks, searchQuery, filter]); // <-- Solo se ejecuta cuando estas variables cambian
+    filterTasks(tasks, searchQuery, filter, selectedCategory);
+  }, [tasks, searchQuery, filter, selectedCategory, filterTasks]);
 
   const handleCreateTask = async (taskForm: TaskForm) => {
     setIsProcessing(true);
     try {
       const newTask = await taskAPI.createTask(taskForm);
-      setTasks(prevTasks => [...prevTasks, newTask]); // Actualizar estado local
+      setTasks(prevTasks => [...prevTasks, newTask]);
     } catch (err) {
       throw err;
     } finally {
@@ -150,6 +170,38 @@ export default function App() {
         onFilterChange={handleFilterChange} 
       />
       
+      {/* Selector de categoría */}
+      {categories.length > 0 && (
+        <View style={styles.categoryFilter}>
+          <Text style={globalStyles.inputLabel}>Filtrar por categoría:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.categoryFilterContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.categoryFilterButton,
+                  !selectedCategory && styles.categoryFilterButtonActive
+                ]}
+                onPress={() => setSelectedCategory('')}
+              >
+                <Text style={styles.categoryFilterButtonText}>Todas</Text>
+              </TouchableOpacity>
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.categoryFilterButton,
+                    selectedCategory === cat && styles.categoryFilterButtonActive
+                  ]}
+                  onPress={() => setSelectedCategory(cat)}
+                >
+                  <Text style={styles.categoryFilterButtonText}>{cat}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      )}
+      
       <TaskList
         tasks={filteredTasks}
         loading={loading}
@@ -165,8 +217,33 @@ export default function App() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSubmit={handleCreateTask}
+        existingCategories={categories}
       />
     </View>
   </>
   );
 }
+
+const styles = StyleSheet.create({
+  categoryFilter: {
+    marginBottom: 16,
+  },
+  categoryFilterContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 8,
+  },
+  categoryFilterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#e9ecef',
+  },
+  categoryFilterButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  categoryFilterButtonText: {
+    color: '#495057',
+    fontWeight: '500',
+  },
+});

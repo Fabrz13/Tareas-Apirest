@@ -11,6 +11,24 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onDelete }) => {
+  const getPriorityColor = () => {
+    switch (task.priority) {
+      case 'high': return '#fff3cd'; // Naranja claro
+      case 'medium': return '#fff3cd'; // Amarillo claro
+      case 'low': return '#ffffff'; // Blanco
+      default: return '#ffffff';
+    }
+  };
+
+  const getPriorityBorderColor = () => {
+    switch (task.priority) {
+      case 'high': return '#dc3545'; // Rojo
+      case 'medium': return '#ffc107'; // Amarillo
+      case 'low': return '#28a745'; // Verde
+      default: return '#dee2e6';
+    }
+  };
+
   const handleDelete = () => {
     Alert.alert(
       'Eliminar tarea',
@@ -40,7 +58,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onDelete })
 
   return (
     <Swipeable renderRightActions={renderRightActions}>
-      <View style={[styles.container, task.completed && styles.completedContainer]}>
+      <View style={[
+        styles.container,
+        { 
+          backgroundColor: getPriorityColor(),
+          borderLeftWidth: 4,
+          borderLeftColor: getPriorityBorderColor()
+        }
+      ]}>
         <TouchableOpacity 
           style={styles.checkboxContainer}
           onPress={() => onToggleComplete(task.id, !task.completed)}
@@ -54,11 +79,34 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onDelete })
           <Text style={[styles.title, task.completed && styles.completedText]}>
             {task.title}
           </Text>
-          {task.createdAt && (
-            <Text style={styles.dateText}>
-              {new Date(task.createdAt).toLocaleDateString()}
+          
+          {task.note && (
+            <Text style={styles.noteText} numberOfLines={2}>
+              {task.note}
             </Text>
           )}
+          
+          <View style={styles.metaContainer}>
+            {task.category && (
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{task.category}</Text>
+              </View>
+            )}
+            
+            {task.createdAt && (
+              <Text style={styles.dateText}>
+                {new Date(task.createdAt).toLocaleDateString()}
+              </Text>
+            )}
+          </View>
+        </View>
+        
+        <View style={styles.priorityIndicator}>
+          <Ionicons 
+            name="flag" 
+            size={16} 
+            color={getPriorityBorderColor()} 
+          />
         </View>
       </View>
     </Swipeable>
@@ -69,7 +117,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
@@ -78,10 +125,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  completedContainer: {
-    opacity: 0.7,
-    backgroundColor: '#f8f9fa',
   },
   checkboxContainer: {
     marginRight: 16,
@@ -105,14 +148,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
+    color: '#212529',
+  },
+  noteText: {
+    fontSize: 14,
+    color: '#6c757d',
+    marginBottom: 8,
+    fontStyle: 'italic',
   },
   completedText: {
     textDecorationLine: 'line-through',
     color: '#6c757d',
   },
+  metaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  categoryBadge: {
+    backgroundColor: '#e9ecef',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  categoryText: {
+    fontSize: 12,
+    color: '#495057',
+    fontWeight: '500',
+  },
   dateText: {
     fontSize: 12,
     color: '#6c757d',
+  },
+  priorityIndicator: {
+    marginLeft: 8,
   },
   deleteContainer: {
     backgroundColor: '#ff3b30',

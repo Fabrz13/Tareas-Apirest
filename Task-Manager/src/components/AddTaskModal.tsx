@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../styles/globalStyles';
@@ -18,16 +19,48 @@ interface AddTaskModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (task: TaskForm) => Promise<void>;
+  existingCategories?: string[];
 }
+
+const priorityOptions = [
+  { value: 'low' as const, label: 'Baja', color: '#28a745' },
+  { value: 'medium' as const, label: 'Media', color: '#ffc107' },
+  { value: 'high' as const, label: 'Alta', color: '#dc3545' },
+];
+
+// Función separada para estilos condicionales
+const priorityButtonSelected = (color: string) => ({
+  backgroundColor: color + '20',
+  borderColor: color,
+});
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({
   visible,
   onClose,
   onSubmit,
+  existingCategories = [],
 }) => {
   const [title, setTitle] = useState('');
+  const [note, setNote] = useState('');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [category, setCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!visible) {
+      // Resetear form cuando se cierra el modal
+      setTitle('');
+      setNote('');
+      setPriority('medium');
+      setCategory('');
+      setNewCategory('');
+      setIsCreatingCategory(false);
+      setError('');
+    }
+  }, [visible]);
 
   const handleSubmit = async () => {
     // Validación
@@ -36,12 +69,24 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       return;
     }
 
+    if (isCreatingCategory && newCategory.trim().length === 0) {
+      setError('El nombre de la categoría no puede estar vacío');
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
 
     try {
-      await onSubmit({ title: title.trim() });
-      setTitle('');
+      const finalCategory = isCreatingCategory ? newCategory.trim() : category;
+      
+      await onSubmit({ 
+        title: title.trim(), 
+        note: note.trim(),
+        priority,
+        category: finalCategory || undefined
+      });
+      
       onClose();
     } catch (err) {
       Alert.alert('Error', 'No se pudo crear la tarea');
@@ -52,8 +97,19 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
   const handleClose = () => {
     setTitle('');
+    setNote('');
+    setPriority('medium');
+    setCategory('');
+    setNewCategory('');
+    setIsCreatingCategory(false);
     setError('');
     onClose();
+  };
+
+  const toggleCategoryCreation = () => {
+    setIsCreatingCategory(!isCreatingCategory);
+    setNewCategory('');
+    setCategory('');
   };
 
   return (
@@ -75,8 +131,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView>
-            <Text style={globalStyles.inputLabel}>Título de la tarea</Text>
+          <ScrollView style={styles.scrollContent}>
+            <Text style={globalStyles.inputLabel}>Título de la tarea *</Text>
             <TextInput
               style={globalStyles.input}
               placeholder="Escribe aquí tu tarea..."
@@ -86,10 +142,96 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                 if (error) setError('');
               }}
               editable={!isSubmitting}
+            />
+
+            <Text style={globalStyles.inputLabel}>Nota (opcional)</Text>
+            <TextInput
+              style={[globalStyles.input, styles.noteInput]}
+              placeholder="Añade una nota o descripción..."
+              value={note}
+              onChangeText={setNote}
+              editable={!isSubmitting}
               multiline
               numberOfLines={3}
               textAlignVertical="top"
             />
+
+            <Text style={globalStyles.inputLabel}>Prioridad</Text>
+            <View style={styles.priorityContainer}>
+              {priorityOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.priorityButton,
+                    priority === option.value && priorityButtonSelected(option.color)
+                  ]}
+                  onPress={() => setPriority(option.value)}
+                  disabled={isSubmitting}
+                >
+                  <Text
+                    style={[
+                      styles.priorityButtonText,
+                      priority === option.value && styles.priorityButtonTextSelected
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={globalStyles.inputLabel}>Categoría (opcional)</Text>
+            
+            <TouchableOpacity 
+              style={styles.categoryToggle}
+              onPress={toggleCategoryCreation}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.categoryToggleText}>
+                {isCreatingCategory ? 'Elegir categoría existente' : 'Crear nueva categoría'}
+              </Text>
+            </TouchableOpacity>
+
+            {isCreatingCategory ? (
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Nombre de la nueva categoría..."
+                value={newCategory}
+                onChangeText={setNewCategory}
+                editable={!isSubmitting}
+              />
+            ) : (
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={styles.categoriesScroll}
+              >
+                <View style={styles.categoriesContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.categoryButton,
+                      !category && styles.categoryButtonSelected
+                    ]}
+                    onPress={() => setCategory('')}
+                  >
+                    <Text style={styles.categoryButtonText}>Sin categoría</Text>
+                  </TouchableOpacity>
+                  
+                  {existingCategories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[
+                        styles.categoryButton,
+                        category === cat && styles.categoryButtonSelected
+                      ]}
+                      onPress={() => setCategory(cat)}
+                    >
+                      <Text style={styles.categoryButtonText}>{cat}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
 
             {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
 
@@ -111,13 +253,9 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? (
-                  <Text style={globalStyles.buttonText}>Creando...</Text>
-                ) : (
-                  <Text style={globalStyles.buttonText}>
-                    <Ionicons name="add" size={16} color="white" /> Crear
-                  </Text>
-                )}
+                <Text style={globalStyles.buttonText}>
+                  {isSubmitting ? 'Creando...' : 'Crear Tarea'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -126,5 +264,69 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    maxHeight: '80%',
+  },
+  noteInput: {
+    minHeight: 20,
+  },
+  priorityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  priorityButton: {
+    flex: 1,
+    padding: 12,
+    marginHorizontal: 4,
+    borderRadius: 8,
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  priorityButtonText: {
+    color: '#6c757d',
+    fontWeight: '500',
+  },
+  priorityButtonTextSelected: {
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  categoryToggle: {
+    padding: 8,
+    marginBottom: 12,
+  },
+  categoryToggleText: {
+    color: '#007AFF',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  categoriesScroll: {
+    marginBottom: 20,
+  },
+  categoriesContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  categoryButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#e9ecef',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  categoryButtonSelected: {
+    backgroundColor: '#007AFF20',
+    borderColor: '#007AFF',
+  },
+  categoryButtonText: {
+    color: '#495057',
+    fontWeight: '500',
+  },
+});
 
 export default AddTaskModal;

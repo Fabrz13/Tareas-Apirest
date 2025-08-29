@@ -20,9 +20,14 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 export const taskAPI = {
-  getTasks: async (): Promise<Task[]> => {
+  getTasks: async (params?: {
+    status?: 'active' | 'completed';
+    priority?: 'low' | 'medium' | 'high';
+    category?: string;
+    search?: string;
+  }): Promise<Task[]> => {
     try {
-      const response = await api.get('/todos'); // Cambiado a /todos
+      const response = await api.get('/todos', { params });
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -31,8 +36,11 @@ export const taskAPI = {
 
   createTask: async (task: TaskForm): Promise<Task> => {
     try {
-      const response = await api.post('/todos', { // Cambiado a /todos
+      const response = await api.post('/todos', {
         title: task.title,
+        note: task.note,
+        priority: task.priority,
+        category: task.category,
         completed: false,
       });
       return response.data;
@@ -43,7 +51,7 @@ export const taskAPI = {
 
   updateTask: async (id: number, updates: Partial<Task>): Promise<Task> => {
     try {
-      const response = await api.patch(`/todos/${id}`, updates); // Cambiado a /todos
+      const response = await api.patch(`/todos/${id}`, updates);
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -52,7 +60,26 @@ export const taskAPI = {
 
   deleteTask: async (id: number): Promise<void> => {
     try {
-      await api.delete(`/todos/${id}`); // Cambiado a /todos
+      await api.delete(`/todos/${id}`);
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  // Nuevos métodos
+  getCategories: async (): Promise<string[]> => {
+    try {
+      const response = await api.get('/categories');
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  getStats: async (): Promise<any> => {
+    try {
+      const response = await api.get('/stats');
+      return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
     }

@@ -108,7 +108,7 @@ export const globalStyles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
-    maxHeight: '80%',
+    maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -137,7 +137,7 @@ export const globalStyles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
     fontSize: 16,
-    minHeight: 100,
+    minHeight: 20,
   },
   errorText: {
     color: '#dc3545',
