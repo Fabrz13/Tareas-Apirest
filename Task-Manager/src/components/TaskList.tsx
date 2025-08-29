@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Task } from '../types/Task';
 import TaskItem from './TaskItem';
 import LoadingIndicator from './LoadingIndicator';
@@ -39,21 +40,32 @@ const TaskList: React.FC<TaskListProps> = ({
   if (error) {
     return (
       <View style={globalStyles.loadingContainer}>
-        <Text style={{ color: 'red', marginBottom: 16 }}>{error}</Text>
-        <TouchableOpacity onPress={onRefresh}>
-          <Text style={{ color: '#007AFF' }}>Reintentar</Text>
+        <Ionicons name="alert-circle" size={48} color="#dc3545" />
+        <Text style={globalStyles.errorText}>{error}</Text>
+        <TouchableOpacity 
+          style={globalStyles.retryButton}
+          onPress={onRefresh}
+        >
+          <Ionicons name="refresh" size={16} color="#007AFF" />
+          <Text style={globalStyles.retryButtonText}>Reintentar</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  const completedCount = tasks.filter(task => task.completed).length;
+  const totalCount = tasks.length;
+
   return (
     <View style={globalStyles.container}>
-      <Text style={[globalStyles.header, { marginTop: 40 }]}>Mis Tareas</Text>
-
-      <TouchableOpacity style={globalStyles.addButton} onPress={onAddPress}>
-        <Text style={globalStyles.addButtonText}>Agregar Tarea</Text>
-      </TouchableOpacity>
+      <View style={globalStyles.headerContainer}>
+        <Text style={globalStyles.header}>Mis Tareas</Text>
+        {totalCount > 0 && (
+          <Text style={globalStyles.taskCount}>
+            {completedCount} de {totalCount} completadas
+          </Text>
+        )}
+      </View>
 
       <FlatList
         data={tasks}
@@ -66,14 +78,31 @@ const TaskList: React.FC<TaskListProps> = ({
           />
         )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={['#007AFF']}
+            tintColor={'#007AFF'}
+          />
         }
         ListEmptyComponent={
-          <Text style={globalStyles.emptyState}>
-            No hay tareas. ¡Agrega una nueva!
-          </Text>
+          <View style={globalStyles.emptyStateContainer}>
+            <Ionicons name="checkmark-done-circle" size={64} color="#e9ecef" />
+            <Text style={globalStyles.emptyStateTitle}>No hay tareas</Text>
+            <Text style={globalStyles.emptyStateText}>
+              ¡Agrega una nueva tarea para comenzar!
+            </Text>
+          </View>
         }
+        contentContainerStyle={tasks.length === 0 && globalStyles.emptyListContainer}
       />
+
+      <TouchableOpacity 
+        style={globalStyles.floatingAddButton}
+        onPress={onAddPress}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };

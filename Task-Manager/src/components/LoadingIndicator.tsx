@@ -7,12 +7,12 @@ interface LoadingIndicatorProps {
 }
 
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ 
-  message = 'Cargando...' 
+  message = 'Cargando tareas...' 
 }) => {
   return (
     <View style={globalStyles.loadingContainer}>
       <ActivityIndicator size="large" color="#007AFF" />
-      <Text style={{ marginTop: 10 }}>{message}</Text>
+      <Text style={globalStyles.loadingText}>{message}</Text>
     </View>
   );
 };

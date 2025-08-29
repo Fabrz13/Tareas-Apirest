@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Task } from '../types/Task';
+import { Swipeable } from 'react-native-gesture-handler';
 
 interface TaskItemProps {
   task: Task;
@@ -20,27 +22,46 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onDelete })
     );
   };
 
+  const renderRightActions = (progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <TouchableOpacity onPress={handleDelete} style={styles.deleteContainer}>
+        <Animated.View style={[styles.deleteButton, { transform: [{ scale }] }]}>
+          <Ionicons name="trash" size={24} color="white" />
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.checkboxContainer}
-        onPress={() => onToggleComplete(task.id, !task.completed)}
-      >
-        <View style={[styles.checkbox, task.completed && styles.checkboxChecked]}>
-          {task.completed && <Text style={styles.checkmark}>✓</Text>}
+    <Swipeable renderRightActions={renderRightActions}>
+      <View style={[styles.container, task.completed && styles.completedContainer]}>
+        <TouchableOpacity 
+          style={styles.checkboxContainer}
+          onPress={() => onToggleComplete(task.id, !task.completed)}
+        >
+          <View style={[styles.checkbox, task.completed && styles.checkboxChecked]}>
+            {task.completed && <Ionicons name="checkmark" size={16} color="white" />}
+          </View>
+        </TouchableOpacity>
+        
+        <View style={styles.textContainer}>
+          <Text style={[styles.title, task.completed && styles.completedText]}>
+            {task.title}
+          </Text>
+          {task.createdAt && (
+            <Text style={styles.dateText}>
+              {new Date(task.createdAt).toLocaleDateString()}
+            </Text>
+          )}
         </View>
-      </TouchableOpacity>
-      
-      <View style={styles.textContainer}>
-        <Text style={[styles.title, task.completed && styles.completedText]}>
-          {task.title}
-        </Text>
       </View>
-      
-      <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-        <Text style={styles.deleteText}>×</Text>
-      </TouchableOpacity>
-    </View>
+    </Swipeable>
   );
 };
 
@@ -49,50 +70,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  completedContainer: {
+    opacity: 0.7,
+    backgroundColor: '#f8f9fa',
   },
   checkboxContainer: {
-    marginRight: 12,
+    marginRight: 16,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
     borderWidth: 2,
     borderColor: '#007AFF',
-    borderRadius: 12,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxChecked: {
     backgroundColor: '#007AFF',
   },
-  checkmark: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
   textContainer: {
     flex: 1,
   },
   title: {
     fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
   },
   completedText: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: '#6c757d',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#6c757d',
+  },
+  deleteContainer: {
+    backgroundColor: '#ff3b30',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   deleteButton: {
-    padding: 4,
-  },
-  deleteText: {
-    fontSize: 24,
-    color: '#ff3b30',
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

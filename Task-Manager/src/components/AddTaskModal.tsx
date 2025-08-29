@@ -6,7 +6,11 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../styles/globalStyles';
 import { TaskForm } from '../types/Task';
 
@@ -56,49 +60,69 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={handleClose}
     >
-      <View style={globalStyles.modalContainer}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={globalStyles.modalContainer}
+      >
         <View style={globalStyles.modalContent}>
-          <Text style={{ fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>
-            Nueva Tarea
-          </Text>
-
-          <TextInput
-            style={globalStyles.input}
-            placeholder="Título de la tarea"
-            value={title}
-            onChangeText={(text) => {
-              setTitle(text);
-              if (error) setError('');
-            }}
-            editable={!isSubmitting}
-          />
-
-          {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
-
-          <View style={globalStyles.buttonGroup}>
-            <TouchableOpacity
-              style={[globalStyles.button, globalStyles.cancelButton]}
-              onPress={handleClose}
-              disabled={isSubmitting}
-            >
-              <Text style={globalStyles.buttonText}>Cancelar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[globalStyles.button, globalStyles.submitButton]}
-              onPress={handleSubmit}
-              disabled={isSubmitting}
-            >
-              <Text style={globalStyles.buttonText}>
-                {isSubmitting ? 'Creando...' : 'Crear'}
-              </Text>
+          <View style={globalStyles.modalHeader}>
+            <Text style={globalStyles.modalTitle}>Nueva Tarea</Text>
+            <TouchableOpacity onPress={handleClose} style={globalStyles.closeButton}>
+              <Ionicons name="close" size={24} color="#000" />
             </TouchableOpacity>
           </View>
+
+          <ScrollView>
+            <Text style={globalStyles.inputLabel}>Título de la tarea</Text>
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Escribe aquí tu tarea..."
+              value={title}
+              onChangeText={(text) => {
+                setTitle(text);
+                if (error) setError('');
+              }}
+              editable={!isSubmitting}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+
+            {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
+
+            <View style={globalStyles.buttonGroup}>
+              <TouchableOpacity
+                style={[globalStyles.button, globalStyles.cancelButton]}
+                onPress={handleClose}
+                disabled={isSubmitting}
+              >
+                <Text style={globalStyles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  globalStyles.button,
+                  globalStyles.submitButton,
+                  isSubmitting && globalStyles.submitButtonDisabled
+                ]}
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Text style={globalStyles.buttonText}>Creando...</Text>
+                ) : (
+                  <Text style={globalStyles.buttonText}>
+                    <Ionicons name="add" size={16} color="white" /> Crear
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
